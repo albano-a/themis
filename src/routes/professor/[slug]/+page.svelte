@@ -27,7 +27,7 @@
 
 	// Review modal state
 	let showReviewModal = $state(false);
-	let reviewRating = $state(5);
+	let reviewRating = $state(1);
 	let reviewComment = $state('');
 	let submittingReview = $state(false);
 
@@ -164,7 +164,7 @@
 			});
 
 			// Reset form and close modal
-			reviewRating = 5;
+			reviewRating = 1;
 			reviewComment = '';
 			showReviewModal = false;
 
