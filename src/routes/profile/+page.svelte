@@ -1,19 +1,30 @@
 <script lang="ts">
-	import { account, storage, BUCKET_ID } from '$lib/appwrite';
+	import {
+		account,
+		storage,
+		BUCKET_ID,
+		USERS_TABLE_ID,
+		DATABASE_ID,
+		tablesDB
+	} from '$lib/appwrite';
+	import { getUserById, getAvatarUrl } from '$lib/appwrite';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { User, LogOut, Edit, Upload } from 'lucide-svelte';
+	import { LogOut, Pencil } from 'lucide-svelte';
 	import type { Models } from 'appwrite';
+	import { updateAvatarUrl } from '$lib/stores/avatarStore';
+	import Avatar from '$lib/components/Avatar.svelte';
+	import { Query } from 'appwrite';
 
 	let user: Models.User | null = $state(null);
 	let newName: string = $state('');
 	let loading: boolean = $state(false);
 	let avatarFile: File | null = $state(null);
-	let avatarUrl: string = $state('');
 	let message: string = $state('');
 	let messageType: 'success' | 'error' | '' = $state('');
 	let showModal: boolean = $state(false);
 	let imageElement: HTMLImageElement | null = $state(null);
+	let avatarUrl = $state<string | null>(null);
 
 	onMount(async () => {
 		try {
@@ -21,7 +32,8 @@
 			newName = user.name || '';
 			const prefs = await account.getPrefs();
 			if (prefs.avatarId) {
-				avatarUrl = storage.getFileView(BUCKET_ID, prefs.avatarId);
+				const fetchedAvatarUrl = await getAvatarUrl(user.$id);
+				avatarUrl = fetchedAvatarUrl; // Update the global store
 			}
 		} catch {
 			await goto('/login');
@@ -90,8 +102,30 @@
 		message = '';
 		try {
 			const uploadedFile = await storage.createFile(BUCKET_ID, 'unique()', avatarFile);
+			const newAvatarUrl = storage.getFileView({ bucketId: BUCKET_ID, fileId: uploadedFile.$id });
 			await account.updatePrefs({ avatarId: uploadedFile.$id });
-			avatarUrl = storage.getFileView(BUCKET_ID, uploadedFile.$id);
+			// Match the user.$id with the col userId before updating the table
+			if (user?.$id) {
+				try {
+					const userDocument = await getUserById(user.$id);
+
+					// Update the users table document to include the avatarId
+					if (!userDocument) {
+						throw new Error('User document not found');
+					}
+					await tablesDB.updateRow({
+						databaseId: DATABASE_ID,
+						tableId: USERS_TABLE_ID,
+						rowId: userDocument.$id,
+						data: {
+							avatarId: uploadedFile.$id
+						}
+					});
+				} catch (err) {
+					console.error('Failed to update users table with avatarId', err);
+				}
+			}
+			if (newAvatarUrl) avatarUrl = newAvatarUrl; // only call when defined
 			message = 'Avatar atualizado com sucesso!';
 			messageType = 'success';
 			closeModal();
@@ -115,16 +149,6 @@
 			console.error(err);
 		}
 	}
-
-	function getInitials(name: string | undefined): string {
-		if (!name) return 'AA';
-		return name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.toUpperCase()
-			.slice(0, 2);
-	}
 </script>
 
 <div class="min-h-screen bg-base-200 font-sans">
@@ -143,20 +167,13 @@
 					<!-- Avatar Section -->
 					<div class="flex flex-col items-center gap-4 py-6">
 						<div class="relative">
-							{#if avatarUrl}
-								<img src={avatarUrl} alt="Avatar" class="h-24 w-24 rounded-full object-cover" />
-							{:else}
-								<div class="avatar-placeholder avatar">
-									<div class="w-24 rounded-full bg-primary text-primary-content">
-										<span class="text-3xl font-bold">{getInitials(user?.name)}</span>
-									</div>
-								</div>
-							{/if}
+							<Avatar name={user?.name} src={avatarUrl} size="w-24 h-24" textSize="text-3xl" />
 							<button
-								class="hover:bg-primary-focus btn absolute -right-2 -bottom-2 btn-circle border-primary bg-primary btn-sm"
+								class="0 btn absolute -right-2 -bottom-2 btn-circle bg-base-100 text-primary shadow-xl ring-2 ring-base-100 transition-transform btn-sm hover:scale-105 hover:bg-base-200"
 								onclick={openModal}
+								aria-label="Editar foto de perfil"
 							>
-								<Edit class="h-4 w-4" />
+								<Pencil class="h-4 w-4" />
 							</button>
 						</div>
 					</div>

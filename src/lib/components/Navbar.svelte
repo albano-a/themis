@@ -4,11 +4,14 @@
 	import { account, storage, BUCKET_ID } from '$lib/appwrite';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { getInitials } from '$lib/utils';
+	import Avatar from '$lib/components/Avatar.svelte';
+	import { getUserById, getAvatarUrl } from '$lib/appwrite';
 
 	/** @type {import('appwrite').Models.User | null} */
 	let user: import('appwrite').Models.User | null = $state(null);
 	let searchQuery: string = $state('');
-	let avatarUrl: string = $state('');
+	let avatarUrl = $state<string | null>(null);
 
 	onMount(async () => {
 		try {
@@ -16,7 +19,9 @@
 			// Get user preferences to check for avatar
 			const prefs = await account.getPrefs();
 			if (prefs.avatarId) {
-				avatarUrl = storage.getFileView(BUCKET_ID, prefs.avatarId);
+				const fetchedAvatarUrl = await getAvatarUrl(user.$id);
+				avatarUrl = fetchedAvatarUrl;
+				console.log('Fetched avatar URL:', avatarUrl);
 			}
 		} catch {
 			user = null;
@@ -45,20 +50,6 @@
 		if (event.key === 'Enter') {
 			handleSearch();
 		}
-	}
-
-	/**
-	 *
-	 * @param {String} name
-	 */
-	function getInitials(name: string) {
-		if (!name) return 'AA';
-		return name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.toUpperCase()
-			.slice(0, 2);
 	}
 </script>
 
@@ -92,17 +83,9 @@
 				<div
 					tabIndex={0}
 					role="button"
-					class="placeholder btn avatar btn-circle border border-base-200 btn-ghost hover:bg-primary/10"
+					class="btn avatar avatar-placeholder btn-circle border border-base-200 btn-ghost hover:bg-primary/10"
 				>
-					{#if avatarUrl}
-						<div class="w-10 rounded-full">
-							<img src={avatarUrl} alt="Avatar" class="h-full w-full rounded-full object-cover" />
-						</div>
-					{:else}
-						<div class="w-10 rounded-full bg-primary/10 text-primary">
-							<span class="text-xl font-bold">{getInitials(user.name)}</span>
-						</div>
-					{/if}
+					<Avatar name={user?.name} src={avatarUrl} size="h-10 w-10" />
 				</div>
 				<ul
 					tabIndex="-1"

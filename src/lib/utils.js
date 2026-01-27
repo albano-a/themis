@@ -1,11 +1,14 @@
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
 /**
- * @param {...import("clsx").ClassValue} inputs
+ *
+ * @param {String | undefined} name
+ * @returns
  */
-export function cn(...inputs) {
-	return twMerge(clsx(inputs));
+export function getInitials(name) {
+	if (!name) return 'AA';
+	return name
+		.split(' ')
+		.map((n) => n[0])
+		.join('')
+		.toUpperCase()
+		.slice(0, 2);
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any

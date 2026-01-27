@@ -4,12 +4,17 @@
 		DATABASE_ID,
 		PROFESSORS_TABLE_ID,
 		REVIEWS_TABLE_ID,
-		account
+		account,
+		USERS_TABLE_ID,
+		storage,
+		BUCKET_ID
 	} from '$lib/appwrite';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { Query, ID } from 'appwrite';
 	import { ArrowLeft, Mail, BookOpen, Star, Plus, Loader2 } from 'lucide-svelte';
+	import { getInitials } from '$lib/utils';
+	import Avatar from '$lib/components/Avatar.svelte';
 
 	let professor = $state<any>(null);
 	let reviews = $state<any[]>([]);
@@ -17,6 +22,8 @@
 	let error: string = $state('');
 	let user = $state<any>(null);
 	let userReview = $state<any>(null);
+	let currentUserRowId = $state<string | null>(null);
+	const maxStars = 10;
 
 	// Review modal state
 	let showReviewModal = $state(false);
@@ -33,6 +40,11 @@
 		return Math.round((sum / reviews.length) * 10) / 10;
 	});
 
+	// Function to normalize a 1-10 rating to a 1-5 scale
+	function normalizeRating(rating: number): number {
+		return Math.round((rating / 10) * 5 * 2) / 2; // Round to nearest 0.5
+	}
+
 	onMount(async () => {
 		try {
 			// Check if user is logged in
@@ -42,22 +54,22 @@
 				user = null;
 			}
 
-			// Fetch professor
-			const profResponse = await tablesDB.listRows({
+			const professorsResponse = await tablesDB.listRows({
 				databaseId: DATABASE_ID,
 				tableId: PROFESSORS_TABLE_ID,
 				queries: [Query.equal('slug', slug)]
 			});
 
-			if (profResponse.rows.length > 0) {
-				professor = profResponse.rows[0];
-				await loadReviews();
+			if (professorsResponse.rows && professorsResponse.rows.length > 0) {
+				professor = professorsResponse.rows[0];
 			} else {
-				error = 'Professor não encontrado.';
+				error = 'Professor not found.';
 			}
+
+			await loadReviews();
 		} catch (err) {
 			console.error('Error fetching professor:', err);
-			error = 'Erro ao carregar professor.';
+			error = 'Erro ao buscar professor.';
 		} finally {
 			loading = false;
 		}
@@ -73,34 +85,81 @@
 				queries: [Query.equal('professor', professor.$id), Query.orderDesc('$createdAt')]
 			});
 			reviews = reviewsResponse.rows;
-			// Track whether the logged-in user already submitted a review for this professor
-			userReview = user ? reviews.find((r) => r.usersId === user.$id) : null;
+
+			reviews.forEach((review) => {
+				// Fetch the user from the usersId stored in the review
+				(async () => {
+					try {
+						const usersResponse = await tablesDB.getRow({
+							databaseId: DATABASE_ID,
+							tableId: USERS_TABLE_ID,
+							rowId: review.usersId
+						});
+						if (usersResponse) {
+							// Attach reviewer info to the review
+							review.reviewer = {
+								name: usersResponse.name,
+								avatarUrl: usersResponse.avatarId
+									? storage.getFileView({ bucketId: BUCKET_ID, fileId: usersResponse.avatarId })
+									: null
+							};
+						}
+					} catch (err) {
+						console.error('Error fetching reviewer for review', review.$id, err);
+					}
+				})();
+			});
+
+			console.log('Fetched reviews:', reviews);
 		} catch (err) {
 			console.error('Error fetching reviews:', err);
 		}
 	}
 
 	async function submitReview() {
-		if (!user || !professor || !reviewComment.trim()) return;
-
-		// prevent duplicate submissions from the same user
-		if (userReview) {
-			error = 'Você já avaliou este professor.';
-			showReviewModal = false;
-			return;
-		}
+		if (!user || !professor) return;
 
 		submittingReview = true;
+
 		try {
+			// Ensure we have the users table row id for this user
+			let usersIdForReview = currentUserRowId;
+			if (!usersIdForReview) {
+				const rows = await tablesDB.listRows({
+					databaseId: DATABASE_ID,
+					tableId: USERS_TABLE_ID,
+					queries: [Query.equal('userId', user.$id)],
+					total: false
+				});
+				if (rows.rows && rows.rows.length > 0) {
+					usersIdForReview = rows.rows[0].$id;
+					currentUserRowId = usersIdForReview;
+				} else {
+					console.error(
+						'Expected users table row for authenticated user not found (userId=' + user.$id + ')'
+					);
+					error = 'Conta de usuário não encontrada.';
+					submittingReview = false;
+					return;
+				}
+			}
+
+			// prevent duplicate submissions (check by users table row $id)
+			if (reviews.some((r) => r.usersId === usersIdForReview)) {
+				error = 'Você já avaliou este professor.';
+				showReviewModal = false;
+				return;
+			}
+
 			await tablesDB.createRow({
 				databaseId: DATABASE_ID,
 				tableId: REVIEWS_TABLE_ID,
 				rowId: ID.unique(),
 				data: {
 					professor: professor.$id,
-					usersId: user.$id,
+					usersId: usersIdForReview, // store users table row $id here
 					rating: reviewRating,
-					comment: reviewComment.trim()
+					comment: reviewComment.trim() || null
 				}
 			});
 
@@ -176,20 +235,20 @@
 							<div class="text-center">
 								<h3 class="text-2xl font-bold">{professor.name}</h3>
 								<div class="mt-2 flex flex-col items-center justify-center gap-2">
-									<div class="rating-md rating-half">
-										{#each renderStars(Math.floor(averageRating())) as filled}
+									<div class="rating-xl rating">
+										{#each Array(5) as _, i}
 											<input
 												type="radio"
-												name="rating-11"
-												class="mask bg-orange-400 mask-star-2 mask-half-1"
-												checked={filled}
+												name="rating-display"
+												class="mask bg-orange-400 mask-star-2"
+												checked={normalizeRating(averageRating()) > i}
 												disabled
 											/>
 										{/each}
 									</div>
 									<span class="text-sm opacity-70">
 										{averageRating() > 0
-											? `${averageRating()}/5 (${reviews.length} avaliaç${reviews.length !== 1 ? 'ões' : 'ão'})`
+											? `${averageRating()}/10 (${reviews.length} avaliaç${reviews.length !== 1 ? 'ões' : 'ão'})`
 											: 'Sem avaliações'}
 									</span>
 								</div>
@@ -261,45 +320,66 @@
 								</h4>
 
 								{#if reviews.length === 0}
-									<div class="py-8 text-center text-gray-500">
-										<BookOpen class="mx-auto mb-4 h-12 w-12 opacity-50" />
-										<p>Este professor ainda não tem avaliações.</p>
+									<div class="py-12 text-center text-base-content/50">
+										<BookOpen class="mx-auto mb-4 h-16 w-16 opacity-20" />
+										<p class="text-lg font-medium">Este professor ainda não tem avaliações.</p>
 										<p class="text-sm">Seja o primeiro a avaliar!</p>
 									</div>
 								{:else}
-									<div class="space-y-4">
+									<div class="grid gap-4">
 										{#each reviews as review}
-											<div class="card border border-base-300 bg-base-200/50">
-												<div class="card-body p-4">
-													<div class="flex items-start justify-between">
+											<div
+												class="card bg-base-100 shadow-sm ring-1 ring-base-200 transition-shadow hover:shadow-md"
+											>
+												<div class="card-body gap-4 p-5">
+													<!-- Review Header -->
+													<div class="flex items-start justify-between gap-4">
 														<div class="flex items-center gap-3">
-															<div class="placeholder avatar">
-																<div
-																	class="bg-neutral-focus h-8 w-8 rounded-full text-neutral-content"
-																>
-																	<span class="text-xs">U</span>
-																</div>
-															</div>
+															<Avatar
+																name={review.reviewer?.name ?? 'Estudante'}
+																src={review.reviewer?.avatarUrl ?? null}
+																size="w-10 h-10"
+																textSize="text-xs"
+															/>
 															<div>
-																<div class="rating-xs rating">
-																	{#each renderStars(review.rating) as filled}
-																		<input
-																			type="radio"
-																			name="review-rating-{review.$id}"
-																			class="mask bg-orange-400 mask-star-2"
-																			checked={filled}
-																			disabled
-																		/>
-																	{/each}
+																<div class="text-sm font-bold">
+																	{review.reviewer?.name ?? 'Estudante'}
 																</div>
-																<div class="text-xs opacity-60">
-																	{new Date(review.$createdAt).toLocaleDateString('pt-BR')}
+																<div class="text-xs text-base-content/50">
+																	{new Date(review.$createdAt).toLocaleDateString('pt-BR', {
+																		day: '2-digit',
+																		month: 'long',
+																		year: 'numeric'
+																	})}
 																</div>
 															</div>
 														</div>
+
+														<!-- Star Rating Display -->
+														<div class="flex items-center gap-2">
+															<span class="text-lg font-bold text-primary/80">{review.rating}</span>
+															<div class="rating-sm pointer-events-none rating rating-half">
+																{#each Array(10) as _, i}
+																	<input
+																		type="radio"
+																		name="rating-read-only-{review.$id}"
+																		class={`mask bg-orange-400 mask-star-2 ${i % 2 === 0 ? 'mask-half-1' : 'mask-half-2'}`}
+																		checked={normalizeRating(review.rating) * 2 === i + 1}
+																		disabled
+																	/>
+																{/each}
+															</div>
+														</div>
 													</div>
+
+													<!-- Review Content -->
 													{#if review.comment}
-														<p class="mt-3 text-sm leading-relaxed">{review.comment}</p>
+														<div class="pl-13">
+															<!-- Indent to align with text, not avatar -->
+															<p class="text-sm leading-relaxed text-base-content/80">
+																{review.comment}
+															</p>
+														</div>
 													{/if}
 												</div>
 											</div>
@@ -317,16 +397,16 @@
 
 <!-- Review Modal -->
 {#if showReviewModal}
-	<div class="modal-open modal">
-		<div class="modal-box max-w-md">
-			<h3 class="mb-4 text-lg font-bold">Avaliar Professor</h3>
+	<dialog class="modal modal-bottom sm:modal-middle" open>
+		<div class="modal-box w-full max-w-lg">
+			<h3 class="mb-4 text-center text-lg font-bold">Avaliar Professor</h3>
 
-			<div class="form-control">
+			<div class="form-control items-center text-center">
 				<div class="label">
 					<span class="label-text font-bold">Sua avaliação</span>
 				</div>
-				<div class="rating-lg rating-half gap-1">
-					{#each Array(5) as _, i}
+				<div class="rating-lg rating mt-2 justify-center gap-1">
+					{#each Array(maxStars) as _, i}
 						<input
 							type="radio"
 							name="review-rating"
@@ -336,25 +416,22 @@
 						/>
 					{/each}
 				</div>
-				<div class="mt-1 text-sm opacity-60">
-					{reviewRating} estrela{reviewRating !== 1 ? 's' : ''} de 5
-				</div>
 			</div>
 
 			<div class="form-control mt-4">
-				<div class="label">
+				<div class="label justify-center">
 					<span class="label-text font-bold">Comentário (opcional)</span>
 					<span class="label-text-alt">{reviewComment.length}/1000</span>
 				</div>
 				<textarea
-					class="textarea-bordered textarea h-24 resize-none"
+					class="textarea-bordered textarea h-24 w-full resize-none"
 					placeholder="Compartilhe sua experiência com este professor..."
 					maxlength="1000"
 					bind:value={reviewComment}
 				></textarea>
 			</div>
 
-			<div class="modal-action">
+			<div class="modal-action justify-center">
 				<button
 					class="btn btn-ghost"
 					onclick={() => (showReviewModal = false)}
@@ -362,11 +439,7 @@
 				>
 					Cancelar
 				</button>
-				<button
-					class="btn btn-primary"
-					onclick={submitReview}
-					disabled={submittingReview || !reviewComment.trim()}
-				>
+				<button class="btn btn-primary" onclick={submitReview} disabled={submittingReview}>
 					{#if submittingReview}
 						<span class="loading loading-lg loading-dots"></span>
 						Enviando...
@@ -376,5 +449,5 @@
 				</button>
 			</div>
 		</div>
-	</div>
+	</dialog>
 {/if}
