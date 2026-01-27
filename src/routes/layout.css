@@ -1,5 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap');
 @import 'tailwindcss';
-
 @plugin 'daisyui' {
 	themes: light --default;
 }
@@ -7,9 +7,13 @@
 :root {
 	/* University Blue - Deep, Trustworthy, Academic */
 	--color-primary: oklch(42% 0.2 270);
+	--font-sans: 'Google Sans Flex';
+
+	
 
 	/* University Gold - Vibrant, Energetic */
 	--color-secondary: oklch(78% 0.18 85);
+
 
 	/* Modern Pop - For highlights */
 	--color-accent: oklch(65% 0.25 320);

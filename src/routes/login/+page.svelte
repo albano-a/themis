@@ -1,10 +1,8 @@
 <script>
 	import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from 'lucide-svelte';
-	import googleIcon from '$lib/assets/google.svg';
 	import { account } from '$lib/appwrite';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { OAuthProvider } from 'appwrite';
 	import { userStore } from '$lib/stores/userStore';
 
 	let email = $state('');
@@ -38,117 +36,118 @@
 			await goto('/profile');
 		} catch (err) {
 			console.error(err);
-			error = 'Um erro ocorreu';
+			error = 'Email ou senha incorretos.';
 		} finally {
 			loading = false;
 		}
 	}
-
-	async function loginWithGoogle() {
-		try {
-			await account.createOAuth2Token(
-				OAuthProvider.Google,
-				'http://localhost:5173/',
-				'http://localhost:5173/login?failure=true'
-			);
-		} catch (err) {
-			console.error(err);
-			error = 'Erro ao iniciar login com Google.';
-		}
-	}
 </script>
 
-<div class="hero min-h-screen bg-base-200 font-sans">
-	<!-- Background Accents -->
+<div class="flex min-h-screen w-full bg-base-100 font-sans">
+	<!-- Left Side: Visual/Branding (Hidden on mobile) -->
 	<div
-		class="absolute top-0 left-0 -mt-20 -ml-20 h-96 w-96 rounded-full bg-primary/20 blur-3xl"
-	></div>
-	<div
-		class="absolute right-0 bottom-0 -mr-20 -mb-20 h-96 w-96 rounded-full bg-secondary/20 blur-3xl"
-	></div>
+		class="relative hidden w-1/2 flex-col justify-between overflow-hidden p-12 text-white lg:flex"
+		style="background: oklch(42% 0.2 270)"
+	>
+		<div class="relative z-10">
+			<a href="/" class="text-3xl font-black tracking-tighter">Classefy</a>
+		</div>
 
-	<div class="hero-content w-full flex-col lg:flex-row-reverse">
-		<div class="card w-full max-w-sm shrink-0 bg-base-100 shadow-2xl">
-			<div class="card-body">
-				<div class="text-center">
-					<h1 class="text-3xl font-black">Bem-vindo!</h1>
-					<p class="py-2 text-sm opacity-70">Entre para avaliar e descobrir.</p>
-				</div>
+		<div class="relative z-10 max-w-md">
+			<div class="mb-6 h-1 w-32 bg-secondary"></div>
+			<h2 class="mb-6 text-5xl leading-tight font-bold">A verdade sobre suas disciplinas.</h2>
+			<p class="text-lg leading-relaxed opacity-90">
+				Junte-se à comunidade estudantil que transformará a forma de escolher professores.
+			</p>
+		</div>
 
-				<!-- Error Message -->
-				{#if error}
-					<div role="alert" class="alert rounded-lg py-2 text-sm alert-error">
-						<AlertCircle class="h-4 w-4" />
+		<div class="relative z-10 text-sm opacity-70">&copy; 2025 Classefy. Feito por estudantes.</div>
+	</div>
+
+	<!-- Right Side: Form -->
+	<div class="flex w-full flex-col justify-center bg-base-100 p-8 lg:w-1/2 lg:p-24">
+		<div class="mx-auto w-full max-w-md">
+			<div class="mb-10">
+				<h1 class="text-4xl font-black text-base-content">Bem-vindo de volta!</h1>
+				<p class="mt-3 text-base-content/60">Preencha seus dados para acessar sua conta.</p>
+			</div>
+
+			{#if error}
+				<div
+					role="alert"
+					class="mb-6 flex items-center gap-3 rounded-xl border border-error/20 bg-error/10 p-4 text-sm text-error"
+				>
+					<div role="alert" class="alert alert-soft alert-error">
 						<span>{error}</span>
 					</div>
-				{/if}
-
-				<form class="form-control gap-3" onsubmit={login}>
-					<!-- Email Input -->
-					<div>
-						<div class="label">
-							<span class="label-text font-bold">Email</span>
-						</div>
-						<label class="input-bordered input flex items-center gap-2">
-							<Mail class="h-4 w-4 opacity-70" />
-							<input
-								type="email"
-								class="grow"
-								placeholder="seu@email.com"
-								required
-								bind:value={email}
-							/>
-						</label>
-					</div>
-
-					<!-- Password Input -->
-					<div>
-						<div class="label">
-							<span class="label-text font-bold">Senha</span>
-							<a href="/forgot-password" class="label-text-alt link link-primary link-hover"
-								>Esqueceu?</a
-							>
-						</div>
-						<label class="input-bordered input flex items-center gap-2">
-							<Lock class="h-4 w-4 opacity-70" />
-							<input
-								type="password"
-								class="grow"
-								placeholder="••••••••"
-								required
-								bind:value={password}
-							/>
-						</label>
-					</div>
-
-					<!-- Submit Button -->
-					<div class="form-control mt-6">
-						<button class="btn rounded-full text-lg btn-primary" disabled={loading}>
-							{#if loading}
-								<span class="loading loading-lg loading-dots"></span>
-							{:else}
-								Entrar
-								<ArrowRight class="h-5 w-5" />
-							{/if}
-						</button>
-					</div>
-				</form>
-
-				<div class="divider text-xs opacity-50">OU</div>
-
-				<!-- Social Login -->
-				<button class="btn rounded-full btn-outline" onclick={loginWithGoogle}>
-					<img src={googleIcon} width="16" height="16" alt="google icon" />
-					Entrar com Google
-				</button>
-
-				<div class="label mt-4 justify-center">
-					<span class="label-text-alt"
-						>Não tem uma conta? <a href="/register" class="link font-bold link-primary"
-							>Criar conta</a
-						></span
-					>
 				</div>
+			{/if}
+
+			<form onsubmit={login} class="space-y-6">
+				<!-- Email -->
+				<div class="form-control">
+					<label class="label pl-1" for="email">
+						<span class="label-text font-bold text-base-content/70">Email</span>
+					</label>
+					<div class="relative">
+						<input
+							id="email"
+							type="email"
+							placeholder="seu@email.com"
+							class="input-bordered input input-lg w-full bg-base-200/50 pl-11 text-sm transition-all focus:bg-base-100 focus:ring-4 focus:ring-primary/10"
+							required
+							bind:value={email}
+						/>
+						<Mail
+							class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
+						/>
+					</div>
+				</div>
+
+				<!-- Password -->
+				<div class="form-control">
+					<div class="label pl-1">
+						<span class="label-text font-bold text-base-content/70">Senha</span>
+						<a
+							href="/forgot-password"
+							class="label-text-alt font-bold link-primary hover:underline"
+						>
+							Esqueceu?
+						</a>
+					</div>
+					<div class="relative">
+						<input
+							id="password"
+							type="password"
+							placeholder="••••••••"
+							class="input-bordered input input-lg w-full bg-base-200/50 pl-11 text-sm transition-all focus:bg-base-100 focus:ring-4 focus:ring-primary/10"
+							required
+							bind:value={password}
+						/>
+						<Lock
+							class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
+						/>
+					</div>
+				</div>
+
+				<button
+					class="btn w-full rounded-xl text-base font-bold shadow-lg transition-all btn-lg btn-primary hover:scale-[1.02] hover:shadow-primary/25"
+					disabled={loading}
+				>
+					{#if loading}
+						<span class="loading loading-md loading-dots"></span>
+					{:else}
+						Entrar na plataforma
+						<ArrowRight class="h-5 w-5" />
+					{/if}
+				</button>
+			</form>
+
+			<div class="mt-8 text-center text-sm text-base-content/60">
+				Não tem uma conta?
+				<a href="/register" class="font-bold link-primary hover:underline">
+					Criar conta gratuita
+				</a>
 			</div>
 		</div>
 	</div>

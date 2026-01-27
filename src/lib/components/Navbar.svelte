@@ -4,10 +4,10 @@
 	import { account, storage, BUCKET_ID } from '$lib/appwrite';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { getInitials } from '$lib/utils';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import { getUserById, getAvatarUrl } from '$lib/appwrite';
 	import { userStore } from '$lib/stores/userStore';
+	
 
 	/** @type {import('appwrite').Models.User | null} */
 	let searchQuery: string = $state('');
@@ -54,9 +54,7 @@
 	}
 </script>
 
-<div
-	class="navbar z-50 mx-auto mt-6 max-w-6xl rounded-full border border-base-200 bg-base-100/80 px-6 shadow-xl backdrop-blur-md transition-all hover:shadow-2xl hover:shadow-primary/5"
->
+<div class="navbar z-50 mx-auto border border-slate-200 bg-base-100/80 px-6">
 	<div class="flex-1">
 		<a href="/" class="btn gap-2 text-2xl font-black tracking-tighter text-primary btn-ghost">
 			Classefy

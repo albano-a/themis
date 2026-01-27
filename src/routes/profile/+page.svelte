@@ -14,6 +14,7 @@
 	import type { Models } from 'appwrite';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import { Query } from 'appwrite';
+	import { userStore } from '$lib/stores/userStore';
 
 	let user: Models.User | null = $state(null);
 	let newName: string = $state('');
@@ -28,6 +29,7 @@
 	onMount(async () => {
 		try {
 			user = await account.get();
+			userStore.set(user); // Update the global user store
 			newName = user.name || '';
 			const prefs = await account.getPrefs();
 			if (prefs.avatarId) {
@@ -35,6 +37,7 @@
 				avatarUrl = fetchedAvatarUrl; // Update the global store
 			}
 		} catch {
+			userStore.set(null);
 			await goto('/login');
 		}
 	});
