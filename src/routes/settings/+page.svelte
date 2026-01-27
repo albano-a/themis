@@ -1,9 +1,11 @@
-<div class="flex min-h-screen items-center justify-center bg-base-200 font-sans">
-	<div class="card bg-base-100 shadow-xl">
-		<div class="card-body text-center">
-			<h2 class="card-title text-3xl font-black">Configurações</h2>
-			<p class="text-lg opacity-70">Em breve...</p>
-			<div class="mt-4 text-6xl">🚧</div>
-		</div>
+<div class="flex min-h-screen items-center justify-center font-sans">
+	<div class="glass-card max-w-lg p-12 text-center backdrop-blur-xl">
+		<h2 class="text-3xl font-black text-base-content">Configurações</h2>
+		<p class="mt-4 text-lg text-base-content/70">
+			Estamos trabalhando nisso! <br />
+			Em breve você poderá personalizar sua experiência.
+		</p>
+		<div class="mt-8 text-6xl opacity-50">🚧</div>
+		<button class="glass-btn btn mt-8 w-full" onclick={() => history.back()}> Voltar </button>
 	</div>
 </div>

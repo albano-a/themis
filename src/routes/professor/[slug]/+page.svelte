@@ -183,212 +183,174 @@
 	}
 </script>
 
-<div class="min-h-screen bg-base-200 font-sans">
-	<div class="container mx-auto px-4 py-8">
-		<div class="mx-auto max-w-2xl">
+<div class="min-h-screen font-sans">
+	<div class="container mx-auto px-4 py-12">
+		<div class="mx-auto max-w-3xl">
 			{#if loading}
-				<div class="flex justify-center py-8">
-					<span class="loading loading-xl loading-dots"></span>
+				<div class="flex h-64 items-center justify-center">
+					<span class="loading loading-lg loading-dots text-primary"></span>
 				</div>
 			{:else if error}
-				<div role="alert" class="alert alert-error">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6 shrink-0 stroke-current"
-						fill="none"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-						/>
-					</svg>
+				<div role="alert" class="glass-card alert border-error/30 bg-error/10 text-error">
+					<AlertCircle class="h-6 w-6" />
 					<span>{error}</span>
 				</div>
 			{:else if professor}
-				<div class="card bg-base-100 shadow-xl">
-					<div class="card-body">
-						<div class="mb-4 flex items-center gap-4">
-							<button class="btn btn-circle btn-ghost" onclick={() => history.back()}>
-								<ArrowLeft class="h-5 w-5" />
-							</button>
-							<h2 class="card-title text-3xl font-black">Perfil do Professor</h2>
+				<div class="glass-card mb-8 w-full p-8 backdrop-blur-xl">
+					<div class="mb-8 flex items-center justify-between">
+						<button
+							class="glass-btn btn btn-circle text-base-content btn-sm hover:bg-white/40"
+							onclick={() => history.back()}
+						>
+							<ArrowLeft class="h-5 w-5" />
+						</button>
+						<h2 class="text-xs font-bold tracking-widest uppercase opacity-50">Perfil Docente</h2>
+						<div class="w-8"></div>
+						<!-- Spacer to center title if needed or keep balanced -->
+					</div>
+
+					<div class="flex flex-col items-center gap-6">
+						<!-- Profile Picture with Ring -->
+						<div class="avatar">
+							<div class="w-32 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100">
+								{#if professor.profile_picture_url}
+									<img src={professor.profile_picture_url} alt={professor.name} />
+								{:else}
+									<div
+										class="flex h-full w-full items-center justify-center bg-primary text-4xl font-bold text-white"
+									>
+										{professor.name.charAt(0).toUpperCase()}
+									</div>
+								{/if}
+							</div>
 						</div>
 
-						<div class="flex flex-col items-center gap-6">
-							{#if professor.profile_picture_url}
-								<img
-									src={professor.profile_picture_url}
-									alt={professor.name}
-									class="h-32 w-32 rounded-full object-cover"
-								/>
-							{:else}
-								<div
-									class="flex h-32 w-32 items-center justify-center rounded-full bg-primary text-4xl font-bold text-primary-content"
-								>
-									{professor.name.charAt(0).toUpperCase()}
-								</div>
-							{/if}
+						<div class="text-center">
+							<h1 class="mb-1 text-3xl font-black text-base-content">{professor.name}</h1>
+							<p class="text-lg font-medium text-base-content/70">{professor.course_name}</p>
+							<p class="text-sm tracking-wide uppercase opacity-50">{professor.university_slug}</p>
 
-							<div class="text-center">
-								<h3 class="text-2xl font-bold">{professor.name}</h3>
-								<div class="mt-2 flex flex-col items-center justify-center gap-2">
-									<div class="rating-xl rating">
-										{#each Array(5) as _, i}
-											<input
-												type="radio"
-												name="rating-display"
-												class="mask bg-orange-400 mask-star-2"
-												checked={normalizeRating(averageRating()) > i}
-												disabled
-											/>
-										{/each}
-									</div>
-									<span class="text-sm opacity-70">
-										{averageRating() > 0
-											? `${averageRating()}/10 (${reviews.length} avaliaç${reviews.length !== 1 ? 'ões' : 'ão'})`
-											: 'Sem avaliações'}
+							<div class="mt-4 flex flex-col items-center gap-2">
+								<div class="rating-lg rating rating-half">
+									{#each Array(10) as _, i}
+										<input
+											type="radio"
+											name="rating-display"
+											class={`mask bg-orange-400 mask-star-2 ${i % 2 === 0 ? 'mask-half-1' : 'mask-half-2'}`}
+											checked={normalizeRating(averageRating()) * 2 === i + 1}
+											disabled
+										/>
+									{/each}
+								</div>
+								<div
+									class="badge gap-2 border-none glass bg-white/20 px-4 py-3 font-bold text-base-content"
+								>
+									<Star class="h-4 w-4 fill-current" />
+									{averageRating() > 0 ? averageRating() : 'N/A'}
+									<span class="text-xs font-normal opacity-70">
+										({reviews.length} avaliaç{reviews.length !== 1 ? 'ões' : 'ão'})
 									</span>
 								</div>
-								<p class="text-lg opacity-70">{professor.course_name}</p>
-								<p class="text-sm opacity-50">{professor.university_slug}</p>
 							</div>
+						</div>
 
-							{#if professor.prof_email}
-								<div class="flex items-center gap-2">
-									<Mail class="h-5 w-5" />
-									<a href="mailto:{professor.prof_email}" class="link link-primary"
-										>{professor.prof_email}</a
-									>
-								</div>
-							{/if}
+						{#if professor.prof_email}
+							<div
+								class="glass-btn flex items-center gap-2 rounded-full px-4 py-2 text-sm text-base-content/80"
+							>
+								<Mail class="h-4 w-4" />
+								<a href="mailto:{professor.prof_email}" class="hover:underline"
+									>{professor.prof_email}</a
+								>
+							</div>
+						{/if}
 
+						<div class="mt-4">
 							{#if user}
 								{#if !userReview}
 									<button
-										class="btn rounded-full btn-outline btn-primary"
+										class="btn rounded-full px-8 shadow-lg shadow-primary/20 transition-all btn-primary hover:scale-105"
 										onclick={() => (showReviewModal = true)}
 									>
-										<Plus class="h-4 w-4" />
-										Avaliar Professor
+										<Plus class="h-5 w-5" />
+										Avaliar Agora
 									</button>
 								{:else}
-									<div class="alert alert-info">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											class="h-6 w-6 shrink-0 stroke-current"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-											></path>
-										</svg>
-										<span>Você já avaliou este professor</span>
+									<div
+										class="flex items-center gap-2 rounded-full bg-success/10 px-4 py-2 text-sm font-bold text-success"
+									>
+										<span>✓ Você já avaliou este professor</span>
 									</div>
 								{/if}
 							{:else}
-								<div class="alert alert-info">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										class="h-6 w-6 shrink-0 stroke-current"
-										><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-										></path></svg
-									>
-									<span
-										><a href="/login" class="link link-primary">Entre</a> para avaliar este professor</span
-									>
-								</div>
+								<a href="/login" class="btn rounded-full px-8 btn-outline"> Entre para avaliar </a>
 							{/if}
-							<div class="divider"></div>
-
-							<div class="w-full">
-								<h4 class="mb-4 flex items-center gap-2 text-xl font-bold">
-									<BookOpen class="h-5 w-5" />
-									Avaliações ({reviews.length})
-								</h4>
-
-								{#if reviews.length === 0}
-									<div class="py-12 text-center text-base-content/50">
-										<BookOpen class="mx-auto mb-4 h-16 w-16 opacity-20" />
-										<p class="text-lg font-medium">Este professor ainda não tem avaliações.</p>
-										<p class="text-sm">Seja o primeiro a avaliar!</p>
-									</div>
-								{:else}
-									<div class="grid gap-4">
-										{#each reviews as review}
-											<div
-												class="card bg-base-100 shadow-sm ring-1 ring-base-200 transition-shadow hover:shadow-md"
-											>
-												<div class="card-body gap-4 p-5">
-													<!-- Review Header -->
-													<div class="flex items-start justify-between gap-4">
-														<div class="flex items-center gap-3">
-															<Avatar
-																name={review.reviewer?.name ?? 'Estudante'}
-																src={review.reviewer?.avatarUrl ?? null}
-																size="w-10 h-10"
-																textSize="text-xs"
-															/>
-															<div>
-																<div class="text-sm font-bold">
-																	{review.reviewer?.name ?? 'Estudante'}
-																</div>
-																<div class="text-xs text-base-content/50">
-																	{new Date(review.$createdAt).toLocaleDateString('pt-BR', {
-																		day: '2-digit',
-																		month: 'long',
-																		year: 'numeric'
-																	})}
-																</div>
-															</div>
-														</div>
-
-														<!-- Star Rating Display -->
-														<div class="flex items-center gap-2">
-															<span class="text-lg font-bold text-primary/80">{review.rating}</span>
-															<div class="rating-sm pointer-events-none rating rating-half">
-																{#each Array(10) as _, i}
-																	<input
-																		type="radio"
-																		name="rating-read-only-{review.$id}"
-																		class={`mask bg-orange-400 mask-star-2 ${i % 2 === 0 ? 'mask-half-1' : 'mask-half-2'}`}
-																		checked={normalizeRating(review.rating) * 2 === i + 1}
-																		disabled
-																	/>
-																{/each}
-															</div>
-														</div>
-													</div>
-
-													<!-- Review Content -->
-													{#if review.comment}
-														<div class="pl-13">
-															<!-- Indent to align with text, not avatar -->
-															<p class="text-sm leading-relaxed text-base-content/80">
-																{review.comment}
-															</p>
-														</div>
-													{/if}
-												</div>
-											</div>
-										{/each}
-									</div>
-								{/if}
-							</div>
 						</div>
 					</div>
+				</div>
+
+				<!-- Reviews Section -->
+				<div class="mt-12">
+					<h3 class="mb-6 flex items-center gap-3 text-2xl font-bold text-base-content">
+						<BookOpen class="h-6 w-6 text-primary" />
+						Avaliações da Comunidade
+					</h3>
+
+					{#if reviews.length === 0}
+						<div
+							class="glass-card flex flex-col items-center justify-center p-12 text-center opacity-70"
+						>
+							<div class="mb-4 rounded-full bg-base-content/5 p-6">
+								<BookOpen class="h-12 w-12 opacity-30" />
+							</div>
+							<p class="text-lg font-medium">Nenhuma avaliação ainda.</p>
+							<p class="text-sm">Seja a primeira pessoa a compartilhar sua experiência!</p>
+						</div>
+					{:else}
+						<div class="grid gap-6">
+							{#each reviews as review}
+								<div
+									class="glass-card border border-white/40 bg-white/40 p-6 transition-all hover:bg-white/60"
+								>
+									<div class="flex items-start gap-4">
+										<Avatar
+											name={review.reviewer?.name ?? 'Anônimo'}
+											src={review.reviewer?.avatarUrl ?? null}
+											size="w-12 h-12"
+											textSize="text-lg"
+										/>
+
+										<div class="flex-1">
+											<div class="flex flex-wrap items-center justify-between gap-2">
+												<div>
+													<h4 class="font-bold text-base-content">
+														{review.reviewer?.name ?? 'Anônimo'}
+													</h4>
+													<p class="text-xs text-base-content/50">
+														{new Date(review.$createdAt).toLocaleDateString('pt-BR', {
+															day: 'numeric',
+															month: 'long',
+															year: 'numeric'
+														})}
+													</p>
+												</div>
+												<div class="flex items-center gap-2 rounded-lg bg-white/50 px-3 py-1">
+													<span class="font-black text-orange-500">{review.rating}</span>
+													<Star class="h-4 w-4 fill-orange-500 text-orange-500" />
+												</div>
+											</div>
+
+											{#if review.comment}
+												<p class="mt-3 leading-relaxed text-base-content/80">
+													"{review.comment}"
+												</p>
+											{/if}
+										</div>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
@@ -397,57 +359,78 @@
 
 <!-- Review Modal -->
 {#if showReviewModal}
-	<dialog class="modal modal-bottom sm:modal-middle" open>
-		<div class="modal-box w-full max-w-lg">
-			<h3 class="mb-4 text-center text-lg font-bold">Avaliar Professor</h3>
-
-			<div class="form-control items-center text-center">
-				<div class="label">
-					<span class="label-text font-bold">Sua avaliação</span>
-				</div>
-				<div class="rating-lg rating mt-2 justify-center gap-1">
-					{#each Array(maxStars) as _, i}
-						<input
-							type="radio"
-							name="review-rating"
-							class="mask bg-orange-400 mask-star-2"
-							bind:group={reviewRating}
-							value={i + 1}
-						/>
-					{/each}
-				</div>
-			</div>
-
-			<div class="form-control mt-4">
-				<div class="label justify-center">
-					<span class="label-text font-bold">Comentário (opcional)</span>
-					<span class="label-text-alt">{reviewComment.length}/1000</span>
-				</div>
-				<textarea
-					class="textarea-bordered textarea h-24 w-full resize-none"
-					placeholder="Compartilhe sua experiência com este professor..."
-					maxlength="1000"
-					bind:value={reviewComment}
-				></textarea>
-			</div>
-
-			<div class="modal-action justify-center">
+	<dialog class="modal modal-bottom backdrop-blur-sm sm:modal-middle" open>
+		<div class="glass-card modal-box border border-white/20 p-8 shadow-2xl">
+			<form method="dialog">
 				<button
-					class="btn btn-ghost"
-					onclick={() => (showReviewModal = false)}
-					disabled={submittingReview}
+					class="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm"
+					onclick={() => (showReviewModal = false)}>✕</button
 				>
-					Cancelar
-				</button>
-				<button class="btn btn-primary" onclick={submitReview} disabled={submittingReview}>
-					{#if submittingReview}
-						<span class="loading loading-lg loading-dots"></span>
-						Enviando...
-					{:else}
-						Enviar Avaliação
-					{/if}
-				</button>
+			</form>
+
+			<h3 class="mb-6 text-center text-2xl font-black">Sua Avaliação</h3>
+
+			<div class="flex flex-col gap-6">
+				<!-- Rating Input -->
+				<div class="flex flex-col items-center gap-2">
+					<span class="text-sm font-bold tracking-wide uppercase opacity-50">Nota</span>
+					<div class="rating-lg rating">
+						{#each Array(maxStars) as _, i}
+							<input
+								type="radio"
+								name="review-rating"
+								class="mask bg-orange-400 mask-star-2"
+								bind:group={reviewRating}
+								value={i + 1}
+							/>
+						{/each}
+					</div>
+					<span class="text-xl font-bold text-orange-500">{reviewRating}/10</span>
+				</div>
+
+				<!-- Comment Input -->
+				<div class="form-control">
+					<label class="label" for="comment">
+						<span class="label-text font-bold">Comentário (opcional)</span>
+					</label>
+					<textarea
+						id="comment"
+						class="glass-input textarea w-full resize-none textarea-lg leading-relaxed placeholder:opacity-50 focus:bg-white/60"
+						placeholder="Conte como foi sua experiência com este professor... (Didática, cobrança, provas, etc.)"
+						rows="4"
+						maxlength="1000"
+						bind:value={reviewComment}
+					></textarea>
+					<div class="label">
+						<span class="label-text-alt ml-auto opacity-50">{reviewComment.length}/1000</span>
+					</div>
+				</div>
+
+				<!-- Actions -->
+				<div class="flex gap-3 pt-2">
+					<button
+						class="glass-btn btn flex-1 border-0 hover:bg-white/40"
+						onclick={() => (showReviewModal = false)}
+						disabled={submittingReview}
+					>
+						Cancelar
+					</button>
+					<button
+						class="btn flex-1 shadow-lg shadow-primary/20 btn-primary"
+						onclick={submitReview}
+						disabled={submittingReview}
+					>
+						{#if submittingReview}
+							<span class="loading loading-dots"></span>
+						{:else}
+							Publicar
+						{/if}
+					</button>
+				</div>
 			</div>
 		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button onclick={() => (showReviewModal = false)}>close</button>
+		</form>
 	</dialog>
 {/if}

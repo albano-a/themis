@@ -77,145 +77,123 @@
 	}
 </script>
 
-<div class="flex min-h-screen w-full bg-base-100 font-sans">
-	<!-- Left Side: Visual/Branding (Hidden on mobile) -->
-	<div
-		class="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-primary p-12 text-white lg:flex"
-	>
-		<div class="relative z-10">
-			<a href="/" class="text-3xl font-black tracking-tighter">Classefy</a>
-		</div>
-
-		<div class="relative z-10 max-w-md p-5" style="">
-			<div class="mb-6 h-1 w-32 bg-secondary"></div>
-			<h2 class="mb-6 text-5xl leading-tight font-bold">Sua voz importa.</h2>
-			<p class="text-lg leading-relaxed opacity-90">
-				Crie sua conta em segundos e comece a contribuir para uma comunidade acadêmica mais
-				transparente e colaborativa
+<div class="flex min-h-screen w-full items-center justify-center p-4 font-sans">
+	<div class="glass-card w-full max-w-md p-8 backdrop-blur-xl">
+		<div class="mb-8 text-center">
+			<a href="/" class="mb-4 block text-4xl font-black tracking-tighter text-primary">Classefy</a>
+			<h1 class="text-2xl font-bold text-base-content">Criar conta</h1>
+			<p class="mt-2 text-sm text-base-content/60">
+				Junte-se a nós para uma comunidade acadêmica mais transparente.
 			</p>
 		</div>
 
-		<div class="relative z-10 text-sm opacity-70">
-			&copy; {new Date().getFullYear()} Classefy. Feito por estudantes.
-		</div>
-	</div>
+		{#if error}
+			<div
+				role="alert"
+				class="mb-6 flex items-center gap-3 rounded-xl border border-error/20 bg-error/10 p-4 text-sm text-error"
+			>
+				<AlertCircle class="h-5 w-5 shrink-0" />
+				<span>{error}</span>
+			</div>
+		{/if}
 
-	<!-- Right Side: Form -->
-	<div class="flex w-full flex-col justify-center bg-base-100 p-8 lg:w-1/2 lg:p-24">
-		<div class="mx-auto w-full max-w-md">
-			<div class="mb-10">
-				<h1 class="text-4xl font-black text-base-content">Criar conta</h1>
-				<p class="mt-3 text-base-content/60">Preencha os dados abaixo para se cadastrar.</p>
+		<form onsubmit={register} class="space-y-4">
+			<!-- Name -->
+			<div class="form-control">
+				<label class="label pl-1" for="name">
+					<span class="label-text font-bold text-base-content/70">Nome Completo</span>
+				</label>
+				<div class="relative">
+					<input
+						id="name"
+						type="text"
+						placeholder="Seu nome"
+						class="glass-input input input-lg w-full pl-11 text-sm transition-all focus:bg-white/60 focus:ring-4 focus:ring-primary/10"
+						required
+						bind:value={name}
+					/>
+					<User
+						class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
+					/>
+				</div>
 			</div>
 
-			{#if error}
-				<div
-					role="alert"
-					class="mb-6 flex items-center gap-3 rounded-xl border border-error/20 bg-error/10 p-4 text-sm text-error"
-				>
-					<AlertCircle class="h-5 w-5 shrink-0" />
-					<span>{error}</span>
+			<!-- Email -->
+			<div class="form-control">
+				<label class="label pl-1" for="email">
+					<span class="label-text font-bold text-base-content/70">Email</span>
+				</label>
+				<div class="relative">
+					<input
+						id="email"
+						type="email"
+						placeholder="seu@email.com"
+						class="glass-input input input-lg w-full pl-11 text-sm transition-all focus:bg-white/60 focus:ring-4 focus:ring-primary/10"
+						required
+						bind:value={email}
+					/>
+					<Mail
+						class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
+					/>
 				</div>
-			{/if}
-
-			<form onsubmit={register} class="space-y-4">
-				<!-- Name -->
-				<div class="form-control">
-					<label class="label pl-1" for="name">
-						<span class="label-text font-bold text-base-content/70">Nome Completo</span>
-					</label>
-					<div class="relative">
-						<input
-							id="name"
-							type="text"
-							placeholder="Seu nome"
-							class="input-bordered input input-lg w-full bg-base-200/50 pl-11 text-sm transition-all focus:bg-base-100 focus:ring-4 focus:ring-primary/10"
-							required
-							bind:value={name}
-						/>
-						<User
-							class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
-						/>
-					</div>
-				</div>
-
-				<!-- Email -->
-				<div class="form-control">
-					<label class="label pl-1" for="email">
-						<span class="label-text font-bold text-base-content/70">Email</span>
-					</label>
-					<div class="relative">
-						<input
-							id="email"
-							type="email"
-							placeholder="seu@email.com"
-							class="input-bordered input input-lg w-full bg-base-200/50 pl-11 text-sm transition-all focus:bg-base-100 focus:ring-4 focus:ring-primary/10"
-							required
-							bind:value={email}
-						/>
-						<Mail
-							class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
-						/>
-					</div>
-				</div>
-
-				<!-- Password -->
-				<div class="form-control">
-					<label class="label pl-1" for="password">
-						<span class="label-text font-bold text-base-content/70">Senha</span>
-					</label>
-					<div class="relative">
-						<input
-							id="password"
-							type="password"
-							placeholder="••••••••"
-							class="input-bordered input input-lg w-full bg-base-200/50 pl-11 text-sm transition-all focus:bg-base-100 focus:ring-4 focus:ring-primary/10"
-							required
-							bind:value={password}
-						/>
-						<Lock
-							class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
-						/>
-					</div>
-				</div>
-
-				<!-- Confirm Password -->
-				<div class="form-control">
-					<label class="label pl-1" for="confirmPassword">
-						<span class="label-text font-bold text-base-content/70">Confirmar Senha</span>
-					</label>
-					<div class="relative">
-						<input
-							id="confirmPassword"
-							type="password"
-							placeholder="••••••••"
-							class="input-bordered input input-lg w-full bg-base-200/50 pl-11 text-sm transition-all focus:bg-base-100 focus:ring-4 focus:ring-primary/10"
-							required
-							bind:value={confirmPassword}
-						/>
-						<Lock
-							class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
-						/>
-					</div>
-				</div>
-
-				<button
-					class="btn mt-4 w-full rounded-xl text-base font-bold shadow-lg transition-all btn-lg btn-primary hover:scale-[1.02] hover:shadow-primary/25"
-					disabled={loading}
-				>
-					{#if loading}
-						<span class="loading loading-md loading-dots"></span>
-					{:else}
-						Criar Conta
-						<ArrowRight class="h-5 w-5" />
-					{/if}
-				</button>
-			</form>
-
-			<div class="mt-8 text-center text-sm text-base-content/60">
-				Já tem uma conta?
-				<a href="/login" class="font-bold link-primary hover:underline"> Fazer login </a>
 			</div>
+
+			<!-- Password -->
+			<div class="form-control">
+				<label class="label pl-1" for="password">
+					<span class="label-text font-bold text-base-content/70">Senha</span>
+				</label>
+				<div class="relative">
+					<input
+						id="password"
+						type="password"
+						placeholder="••••••••"
+						class="glass-input input input-lg w-full pl-11 text-sm transition-all focus:bg-white/60 focus:ring-4 focus:ring-primary/10"
+						required
+						bind:value={password}
+					/>
+					<Lock
+						class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
+					/>
+				</div>
+			</div>
+
+			<!-- Confirm Password -->
+			<div class="form-control">
+				<label class="label pl-1" for="confirmPassword">
+					<span class="label-text font-bold text-base-content/70">Confirmar Senha</span>
+				</label>
+				<div class="relative">
+					<input
+						id="confirmPassword"
+						type="password"
+						placeholder="••••••••"
+						class="glass-input input input-lg w-full pl-11 text-sm transition-all focus:bg-white/60 focus:ring-4 focus:ring-primary/10"
+						required
+						bind:value={confirmPassword}
+					/>
+					<Lock
+						class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-base-content/40"
+					/>
+				</div>
+			</div>
+
+			<button
+				class="btn mt-4 w-full rounded-xl text-base font-bold shadow-lg transition-all btn-lg btn-primary hover:scale-[1.02] hover:shadow-primary/25"
+				disabled={loading}
+			>
+				{#if loading}
+					<span class="loading loading-md loading-dots"></span>
+				{:else}
+					Criar Conta
+					<ArrowRight class="h-5 w-5" />
+				{/if}
+			</button>
+		</form>
+
+		<div class="mt-8 text-center text-sm text-base-content/60">
+			Já tem uma conta?
+			<a href="/login" class="link font-bold link-primary hover:underline"> Fazer login </a>
 		</div>
 	</div>
 </div>

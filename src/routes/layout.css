@@ -9,17 +9,78 @@
 	--color-primary: oklch(42% 0.2 270);
 	--font-sans: 'Google Sans Flex';
 
-	
-
 	/* University Gold - Vibrant, Energetic */
-	--color-secondary: oklch(78% 0.18 85);
-
+	--color-secondary: oklch(50.988% 0.16385 256.688);
 
 	/* Modern Pop - For highlights */
-	--color-accent: oklch(65% 0.25 320);
+	--color-accent: oklch(72.702% 0.11613 265.047);
 
 	/* Clean Base */
 	--color-base-100: oklch(100% 0 0);
 	--color-base-200: oklch(97% 0.01 260);
 	--color-base-300: oklch(92% 0.02 260);
+}
+
+body {
+	background-color: var(--color-base-200);
+	background-image:
+		radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+		radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+		radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+	/* Using the theme colors more abstractly for a softer background */
+	background-image:
+		radial-gradient(at 0% 0%, var(--color-secondary) 0px, transparent 40%),
+		radial-gradient(at 100% 0%, var(--color-accent) 0px, transparent 40%),
+		radial-gradient(at 100% 100%, var(--color-primary) 0px, transparent 40%),
+		radial-gradient(at 0% 100%, var(--color-base-100) 0px, transparent 50%);
+	background-attachment: fixed;
+	background-size: cover;
+	min-height: 100vh;
+}
+
+.glass {
+	background: rgba(255, 255, 255, 0.1);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-card {
+	background: rgba(255, 255, 255, 0.45);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+	border-radius: 1rem;
+}
+
+.glass-nav {
+	background: rgba(255, 255, 255, 0.5);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+.glass-input {
+	background: rgba(255, 255, 255, 0.3);
+	backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: var(--color-base-content);
+}
+
+.glass-input::placeholder {
+	color: rgba(0, 0, 0, 0.5);
+}
+
+.glass-btn {
+	background: rgba(255, 255, 255, 0.3);
+	backdrop-filter: blur(4px);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	transition: all 0.2s ease-in-out;
+}
+
+.glass-btn:hover {
+	background: rgba(255, 255, 255, 0.5);
 }

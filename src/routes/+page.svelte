@@ -3,19 +3,19 @@
 	import { Search, Star, Shield, Zap, ArrowRight, GraduationCap } from 'lucide-svelte';
 </script>
 
-<div class="min-h-screen bg-base-100 font-sans">
+<div class="min-h-screen font-sans text-base-content">
 	<!-- Hero Section -->
-	<section class="relative hero mt-8 min-h-[80vh] overflow-hidden bg-base-200">
-		<!-- Background accents -->
+	<section class="relative hero mt-8 min-h-[80vh] overflow-hidden">
+		<!-- Background accents can stay as additional flair, but maybe adjust opacity -->
 		<div
-			class="absolute -top-24 -left-24 h-96 w-96 animate-pulse rounded-full bg-primary/20 blur-3xl"
+			class="absolute -top-24 -left-24 h-96 w-96 animate-pulse rounded-full bg-primary/30 blur-3xl"
 		></div>
-		<div class="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-secondary/20 blur-3xl"></div>
+		<div class="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-secondary/30 blur-3xl"></div>
 
 		<div class="hero-content z-10 text-center">
 			<div class="max-w-4xl">
 				<div
-					class="mb-8 badge gap-2 badge-outline p-4 text-sm font-bold tracking-widest uppercase badge-primary"
+					class="mb-8 badge gap-2 border-primary/20 glass p-4 text-sm font-bold tracking-widest text-primary uppercase"
 				>
 					<span class="relative flex h-3 w-3">
 						<span
@@ -26,28 +26,32 @@
 					A nova era das avaliações
 				</div>
 
-				<h1 class="mb-8 text-5xl leading-tight font-black md:text-7xl lg:text-8xl">
+				<h1
+					class="mb-8 text-5xl leading-tight font-black text-base-content md:text-7xl lg:text-8xl"
+				>
 					A verdade sobre <br class="hidden md:block" />
-					<span class="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+					<span
+						class="filter bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-sm"
+					>
 						seus professores.
 					</span>
 				</h1>
 
-				<p class="mb-10 text-xl font-medium text-base-content/80 lg:text-2xl">
+				<p class="mb-10 text-xl font-medium text-base-content/80 drop-shadow-sm lg:text-2xl">
 					Chega de surpresas na hora da inscrição nas matérias. Descubra quem ensina bem, quem passa
 					trabalho demais e quem vai salvar o seu semestre.
 				</p>
 
 				<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
 					<button
-						class="btn gap-3 rounded-full shadow-lg transition-transform btn-lg btn-primary hover:scale-105"
+						class="btn gap-3 rounded-full border-none shadow-lg transition-transform btn-lg btn-primary hover:scale-105 hover:bg-primary/90"
 						onclick={() => goto('/search')}
 					>
 						<Search class="h-5 w-5" />
 						Buscar Professor
 					</button>
 					<button
-						class="btn gap-3 rounded-full transition-transform btn-outline btn-lg hover:scale-105"
+						class="btn gap-3 rounded-full glass text-base-content transition-transform btn-lg hover:scale-105 hover:bg-white/40"
 						onclick={() => goto('/about')}
 					>
 						Como funciona
@@ -62,7 +66,7 @@
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 			<!-- Card 1 -->
 			<div
-				class="card border border-base-300 bg-base-100 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+				class="glass-card card transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
 			>
 				<div class="card-body">
 					<div
@@ -80,7 +84,7 @@
 
 			<!-- Card 2 (Wide) -->
 			<div
-				class="card relative overflow-hidden bg-primary text-primary-content shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:col-span-2"
+				class="bg-opacity-90 card relative overflow-hidden bg-primary text-primary-content shadow-xl backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:col-span-2"
 			>
 				<div
 					class="absolute top-0 right-0 -mt-10 -mr-10 h-64 w-64 rounded-full bg-white/10 blur-3xl"
@@ -110,7 +114,7 @@
 
 			<!-- Card 3 -->
 			<div
-				class="card border border-base-300 bg-base-100 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+				class="glass-card card transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
 			>
 				<div class="card-body">
 					<div
@@ -128,7 +132,7 @@
 
 			<!-- Card 4 (Wide) -->
 			<div
-				class="card border border-base-300 bg-base-100 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:col-span-2"
+				class="glass-card card transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:col-span-2"
 			>
 				<div class="card-body">
 					<div

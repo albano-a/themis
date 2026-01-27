@@ -7,7 +7,6 @@
 	import Avatar from '$lib/components/Avatar.svelte';
 	import { getUserById, getAvatarUrl } from '$lib/appwrite';
 	import { userStore } from '$lib/stores/userStore';
-	
 
 	/** @type {import('appwrite').Models.User | null} */
 	let searchQuery: string = $state('');
@@ -54,9 +53,12 @@
 	}
 </script>
 
-<div class="navbar z-50 mx-auto border border-slate-200 bg-base-100/80 px-6">
+<div class="glass-nav navbar sticky top-0 z-50 px-6 text-base-content">
 	<div class="flex-1">
-		<a href="/" class="btn gap-2 text-2xl font-black tracking-tighter text-primary btn-ghost">
+		<a
+			href="/"
+			class="btn gap-2 text-2xl font-black tracking-tighter text-primary btn-ghost hover:bg-white/20"
+		>
 			Classefy
 		</a>
 	</div>
@@ -65,13 +67,13 @@
 			<div class="relative w-full">
 				<input
 					type="text"
-					class="input-bordered input input-sm h-10 w-full rounded-full bg-base-200 pr-12 focus:bg-base-100 focus:ring-2 focus:ring-primary/20"
+					class="glass-input input input-sm h-10 w-full rounded-full pr-12 text-base-content placeholder-base-content/60 focus:bg-white/60 focus:ring-2 focus:ring-primary/20"
 					placeholder="Buscar professores..."
 					bind:value={searchQuery}
 					onkeydown={handleKeydown}
 				/>
 				<Search
-					class="absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 transform cursor-pointer text-gray-400 hover:text-primary"
+					class="absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 transform cursor-pointer text-base-content/50 hover:text-primary"
 					onclick={handleSearch}
 				/>
 			</div>
@@ -82,13 +84,13 @@
 				<div
 					tabIndex={0}
 					role="button"
-					class="btn avatar avatar-placeholder btn-circle border border-base-200 btn-ghost hover:bg-primary/10"
+					class="btn avatar avatar-placeholder btn-circle border border-white/30 btn-ghost hover:bg-primary/10"
 				>
 					<Avatar name={$userStore?.name} src={avatarUrl} size="h-10 w-10" />
 				</div>
 				<ul
 					tabIndex="-1"
-					class="dropdown-content menu z-1 mt-3 w-52 menu-sm rounded-2xl bg-base-100 p-2 shadow-2xl ring-1 ring-base-200"
+					class="glass-card dropdown-content menu z-1 mt-3 w-52 rounded-2xl p-2 shadow-2xl"
 				>
 					<li>
 						<a href="/profile" class="justify-between rounded-lg py-2 font-medium"> Profile </a>

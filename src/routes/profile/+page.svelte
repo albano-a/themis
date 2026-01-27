@@ -153,96 +153,143 @@
 	}
 </script>
 
-<div class="min-h-screen bg-base-200 font-sans">
-	<div class="container mx-auto px-4 py-8">
+<div class="min-h-screen font-sans">
+	<div class="container mx-auto px-4 py-12">
 		<div class="mx-auto max-w-2xl">
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title text-3xl font-black">Perfil</h2>
+			<div class="glass-card w-full p-8 backdrop-blur-xl">
+				<div class="mb-8 flex items-center justify-between">
+					<h2 class="text-3xl font-black text-base-content">Seu Perfil</h2>
+					<button class="btn text-error btn-ghost btn-sm hover:bg-error/10" onclick={logout}>
+						<LogOut class="mr-2 h-4 w-4" />
+						Sair
+					</button>
+				</div>
 
-					{#if message}
-						<div role="alert" class="alert alert-{messageType} rounded-lg py-2 text-sm">
-							<span>{message}</span>
-						</div>
-					{/if}
-
-					<!-- Avatar Section -->
-					<div class="flex flex-col items-center gap-4 py-6">
-						<div class="relative">
-							<Avatar name={user?.name} src={avatarUrl} size="w-24 h-24" textSize="text-3xl" />
-							<button
-								class="0 btn absolute -right-2 -bottom-2 btn-circle bg-base-100 text-primary shadow-xl ring-2 ring-base-100 transition-transform btn-sm hover:scale-105 hover:bg-base-200"
-								onclick={openModal}
-								aria-label="Editar foto de perfil"
-							>
-								<Pencil class="h-4 w-4" />
-							</button>
-						</div>
+				{#if message}
+					<div
+						role="alert"
+						class={`mb-6 flex items-center gap-2 rounded-xl border p-4 text-sm font-bold ${
+							messageType === 'success'
+								? 'border-success/30 bg-success/10 text-success'
+								: 'border-error/30 bg-error/10 text-error'
+						}`}
+					>
+						<span>{message}</span>
 					</div>
+				{/if}
 
-					<!-- Name Section -->
-					<div class="form-control">
-						<div class="label">
-							<span class="label-text font-bold">Nome</span>
+				<!-- Avatar Section -->
+				<div class="mb-8 flex flex-col items-center gap-6">
+					<div class="group relative">
+						<div
+							class="rounded-full ring-4 ring-white/30 transition-all group-hover:ring-primary/50"
+						>
+							<Avatar name={user?.name} src={avatarUrl} size="w-32 h-32" textSize="text-4xl" />
 						</div>
-						<div class="flex gap-2">
-							<input
-								type="text"
-								class="input-bordered input flex-1"
-								placeholder="Seu nome"
-								bind:value={newName}
-							/>
-							<button class="btn btn-primary" onclick={updateName} disabled={loading}>
-								{#if loading}
-									<span class="loading loading-sm loading-spinner"></span>
-								{:else}
-									Salvar
-								{/if}
-							</button>
-						</div>
-					</div>
-
-					<!-- Logout Section -->
-					<div class="divider"></div>
-					<div class="card-actions justify-end">
-						<button class="btn btn-error" onclick={logout}>
-							<LogOut class="mr-2 h-4 w-4" />
-							Sair
+						<button
+							class="btn absolute -right-2 -bottom-2 btn-circle border-4 border-white shadow-lg transition-transform btn-primary hover:scale-110"
+							onclick={openModal}
+							aria-label="Editar foto de perfil"
+						>
+							<Pencil class="h-4 w-4" />
 						</button>
 					</div>
+					<div class="text-center">
+						<h3 class="text-xl font-bold">{user?.name}</h3>
+						<p class="text-sm opacity-60">{user?.email}</p>
+					</div>
 				</div>
-			</div>
-		</div>
-	</div>
 
-	<!-- Avatar Edit Modal -->
-	<div class="modal {showModal ? 'modal-open' : ''}">
-		<div class="modal-box max-w-lg">
-			<h3 class="mb-4 text-lg font-bold">Editar Avatar</h3>
-			<div class="form-control mb-4">
-				<div class="label">
-					<span class="label-text">Selecione uma imagem</span>
+				<div class="divider opacity-20"></div>
+
+				<!-- Name Section -->
+				<div class="form-control mb-6">
+					<label class="label pl-0" for="name">
+						<span class="label-text font-bold text-base-content/70">Nome de Exibição</span>
+					</label>
+					<div class="flex gap-3">
+						<input
+							id="name"
+							type="text"
+							class="glass-input input flex-1 bg-white/20 focus:bg-white/40"
+							placeholder="Como você quer ser chamado"
+							bind:value={newName}
+						/>
+						<button class="btn px-8 btn-primary" onclick={updateName} disabled={loading}>
+							{#if loading}
+								<span class="loading loading-sm loading-spinner"></span>
+							{:else}
+								Salvar
+							{/if}
+						</button>
+					</div>
+					<div class="label pl-0">
+						<span class="label-text-alt opacity-50">Este nome aparecerá em suas avaliações</span>
+					</div>
 				</div>
-				<input
-					type="file"
-					accept="image/*"
-					class="file-input-bordered file-input file-input-sm"
-					onchange={handleFileSelect}
-				/>
-			</div>
-			<div class="mb-4">
-				<img bind:this={imageElement} alt="Preview" class="h-auto max-w-full" />
-			</div>
-			<div class="modal-action">
-				<button class="btn" onclick={closeModal}>Cancelar</button>
-				<button class="btn btn-primary" onclick={uploadAvatar} disabled={loading || !avatarFile}>
-					{#if loading}
-						<span class="loading loading-sm loading-spinner"></span>
-					{:else}
-						Salvar
-					{/if}
-				</button>
 			</div>
 		</div>
 	</div>
 </div>
+
+<!-- Avatar Edit Modal -->
+{#if showModal}
+	<dialog class="modal modal-bottom backdrop-blur-sm sm:modal-middle" open>
+		<div class="glass-card modal-box border border-white/20 p-8 shadow-2xl">
+			<h3 class="mb-6 text-center text-xl font-bold">Alterar Foto de Perfil</h3>
+
+			<div class="flex flex-col items-center gap-6">
+				<div class="placeholder avatar">
+					<div
+						class="w-32 rounded-full bg-base-300 ring ring-primary ring-offset-2 ring-offset-base-100"
+					>
+						{#if imageElement && imageElement.src}
+							<img src={imageElement.src} alt="Preview" class="object-cover" />
+						{:else}
+							<span class="text-4xl opacity-20"><Pencil /></span>
+						{/if}
+					</div>
+				</div>
+
+				<div class="form-control w-full">
+					<input
+						type="file"
+						accept="image/*"
+						class="glass-input file-input w-full file-input-primary"
+						onchange={handleFileSelect}
+					/>
+					<div class="label">
+						<span class="label-text-alt opacity-50">Formatos aceitos: JPG, PNG, WEBP</span>
+					</div>
+				</div>
+
+				<div class="flex w-full gap-3">
+					<button
+						class="glass-btn btn flex-1 border-0 hover:bg-white/40"
+						onclick={closeModal}
+						disabled={loading}
+					>
+						Cancelar
+					</button>
+					<button
+						class="btn flex-1 shadow-lg shadow-primary/20 btn-primary"
+						onclick={uploadAvatar}
+						disabled={loading || !avatarFile}
+					>
+						{#if loading}
+							<span class="loading loading-spinner"></span>
+						{:else}
+							Atualizar Foto
+						{/if}
+					</button>
+				</div>
+			</div>
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button onclick={closeModal}>close</button>
+		</form>
+	</dialog>
+{/if}
+
+<!-- Hidden image element for preview logic -->
+<img bind:this={imageElement} class="hidden" alt="hidden preview" />
