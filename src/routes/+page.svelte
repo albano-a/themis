@@ -31,7 +31,7 @@
 				>
 					A verdade sobre <br class="hidden md:block" />
 					<span
-						class="filter bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-sm"
+						class="filter bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-sm"
 					>
 						seus professores.
 					</span>

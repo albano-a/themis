@@ -4,18 +4,34 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { Search, AlertCircle } from 'lucide-svelte';
+	import { Search, AlertCircle, ArrowRight } from 'lucide-svelte';
 
 	let professors: any[] = $state([]);
 	let query: string = $state('');
 	let loading: boolean = $state(true);
 	let error: string = $state('');
 
+	let selectedCourse = $state('');
+	let selectedUniversity = $state('');
+
+	// Pagination State
+	let currentPage = $state(1);
+	const itemsPerPage = 10;
+
+	let uniqueCourses = $derived([...new Set(professors.map((p) => p.course_name))].sort());
+	let uniqueUniversities = $derived([...new Set(professors.map((p) => p.university_slug))].sort());
+
 	let filteredProfessors = $derived(
 		professors.filter((prof) => {
 			const searchTerm = query.toLowerCase();
 			const profName = prof.name.toLowerCase();
 			const profCourse = prof.course_name.toLowerCase();
+
+			// Apply Dropdown Filters
+			if (selectedCourse && prof.course_name !== selectedCourse) return false;
+			if (selectedUniversity && prof.university_slug !== selectedUniversity) return false;
+
+			if (!searchTerm) return true;
 
 			// Check course name (exact match)
 			if (profCourse.includes(searchTerm)) {
@@ -27,6 +43,21 @@
 			return queryWords.every((word) => profName.includes(word));
 		})
 	);
+
+	// Pagination Logic
+	let totalPages = $derived(Math.ceil(filteredProfessors.length / itemsPerPage));
+	let paginatedProfessors = $derived(
+		filteredProfessors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+	);
+
+	// Reset pagination on filter change (using a reactive statement instead of effect for simplicity in Svelte 5 logic flow if needed, but derived covers calculation. We need to reset page when filters change)
+	$effect(() => {
+		// Watch filter changes to reset page
+		query;
+		selectedCourse;
+		selectedUniversity;
+		currentPage = 1;
+	});
 
 	onMount(async () => {
 		try {
@@ -84,6 +115,23 @@
 					</div>
 				</div>
 
+				<!-- Filters -->
+				<div class="mt-4 flex flex-wrap gap-4">
+					<select class="glass-input select flex-1" bind:value={selectedUniversity}>
+						<option value="">Todas as Universidades</option>
+						{#each uniqueUniversities as uni}
+							<option value={uni}>{uni}</option>
+						{/each}
+					</select>
+
+					<select class="glass-input select flex-1" bind:value={selectedCourse}>
+						<option value="">Todas as Disciplinas</option>
+						{#each uniqueCourses as course}
+							<option value={course}>{course}</option>
+						{/each}
+					</select>
+				</div>
+
 				<div class="mt-6">
 					{#if loading}
 						<div class="flex justify-center py-12">
@@ -95,12 +143,12 @@
 							<h3 class="mb-2 text-lg font-bold text-error">Erro ao carregar dados</h3>
 							<p class="text-sm opacity-80">{error}</p>
 						</div>
-					{:else if query && filteredProfessors.length > 0}
+					{:else if filteredProfessors.length > 0}
 						<div
 							class="mt-4 overflow-hidden rounded-2xl border border-white/20 bg-white/30 shadow-sm"
 						>
 							<ul class="divide-y divide-white/20">
-								{#each filteredProfessors as prof}
+								{#each paginatedProfessors as prof}
 									<li>
 										<button
 											onclick={() => selectProfessor(prof.slug)}
@@ -110,17 +158,19 @@
 													selectProfessor(prof.slug);
 												}
 											}}
-											class="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-white/40 focus:bg-white/40 focus:outline-none"
+											class="group flex w-full items-center gap-4 p-4 text-left transition-all duration-300 hover:bg-primary/10 hover:pl-6 focus:bg-white/40 focus:outline-none"
 										>
 											{#if prof.profile_picture_url}
 												<img
 													src={prof.profile_picture_url}
 													alt={prof.name}
-													class="h-12 w-12 rounded-full object-cover shadow-sm"
+													class="h-12 w-12 rounded-full object-cover shadow-sm transition-transform group-hover:scale-110"
 												/>
 											{:else}
 												<div class="avatar avatar-placeholder">
-													<div class="h-12 w-12 rounded-full bg-primary/20 text-primary">
+													<div
+														class="h-12 w-12 rounded-full bg-primary/20 text-primary transition-transform group-hover:scale-110"
+													>
 														<span class="text-lg font-bold"
 															>{prof.name.charAt(0).toUpperCase()}</span
 														>
@@ -134,16 +184,41 @@
 												</div>
 											</div>
 											<div
-												class="text-primary opacity-0 transition-opacity group-hover:opacity-100"
+												class="translate-x-2.5 text-primary opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
 											>
-												→
+												<ArrowRight class="h-6 w-6" />
 											</div>
 										</button>
 									</li>
 								{/each}
 							</ul>
 						</div>
-					{:else if query && filteredProfessors.length === 0}
+
+						<!-- Pagination Controls -->
+						{#if totalPages > 1}
+							<div class="mt-8 flex justify-center">
+								<div class="join shadow-lg">
+									<button
+										class="glass-btn btn join-item border-white/20"
+										disabled={currentPage === 1}
+										onclick={() => currentPage--}
+									>
+										«
+									</button>
+									<button class="glass-btn no-animation btn join-item border-white/20">
+										Página {currentPage} de {totalPages}
+									</button>
+									<button
+										class="glass-btn btn join-item border-white/20"
+										disabled={currentPage === totalPages}
+										onclick={() => currentPage++}
+									>
+										»
+									</button>
+								</div>
+							</div>
+						{/if}
+					{:else if filteredProfessors.length === 0}
 						<div class="py-12 text-center">
 							<div class="mb-4 text-6xl opacity-20">🔍</div>
 							<h3 class="mb-2 text-lg font-bold text-base-content/80">

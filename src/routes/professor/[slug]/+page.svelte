@@ -192,7 +192,6 @@
 				</div>
 			{:else if error}
 				<div role="alert" class="glass-card alert border-error/30 bg-error/10 text-error">
-					<AlertCircle class="h-6 w-6" />
 					<span>{error}</span>
 				</div>
 			{:else if professor}
@@ -359,8 +358,8 @@
 
 <!-- Review Modal -->
 {#if showReviewModal}
-	<dialog class="modal modal-bottom backdrop-blur-sm sm:modal-middle" open>
-		<div class="glass-card modal-box border border-white/20 p-8 shadow-2xl">
+	<dialog class="modal modal-bottom backdrop-blur-md sm:modal-middle" open>
+		<div class="modal-box border border-white/20 bg-base-100 p-8 shadow-2xl">
 			<form method="dialog">
 				<button
 					class="btn absolute top-2 right-2 btn-circle btn-ghost btn-sm"
