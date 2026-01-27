@@ -12,7 +12,6 @@
 	import { onMount } from 'svelte';
 	import { LogOut, Pencil } from 'lucide-svelte';
 	import type { Models } from 'appwrite';
-	import { updateAvatarUrl } from '$lib/stores/avatarStore';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import { Query } from 'appwrite';
 

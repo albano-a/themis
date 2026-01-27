@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { OAuthProvider } from 'appwrite';
+	import { userStore } from '$lib/stores/userStore';
 
 	let email = $state('');
 	let password = $state('');
@@ -13,7 +14,8 @@
 
 	onMount(async () => {
 		try {
-			await account.get();
+			const user = await account.get();
+			userStore.set(user);
 			await goto('/profile');
 		} catch {
 			// User not logged in, stay on login page
@@ -31,6 +33,8 @@
 
 		try {
 			await account.createEmailPasswordSession({ email: email, password: password });
+			const user = await account.get();
+			userStore.set(user);
 			await goto('/profile');
 		} catch (err) {
 			console.error(err);
@@ -121,7 +125,7 @@
 					<div class="form-control mt-6">
 						<button class="btn rounded-full text-lg btn-primary" disabled={loading}>
 							{#if loading}
-								<span class="loading loading-dots loading-lg"></span>
+								<span class="loading loading-lg loading-dots"></span>
 							{:else}
 								Entrar
 								<ArrowRight class="h-5 w-5" />

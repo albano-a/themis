@@ -7,31 +7,32 @@
 	import { getInitials } from '$lib/utils';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import { getUserById, getAvatarUrl } from '$lib/appwrite';
+	import { userStore } from '$lib/stores/userStore';
 
 	/** @type {import('appwrite').Models.User | null} */
-	let user: import('appwrite').Models.User | null = $state(null);
 	let searchQuery: string = $state('');
 	let avatarUrl = $state<string | null>(null);
 
 	onMount(async () => {
 		try {
-			user = await account.get();
+			const u = await account.get();
+			userStore.set(u);
 			// Get user preferences to check for avatar
 			const prefs = await account.getPrefs();
 			if (prefs.avatarId) {
-				const fetchedAvatarUrl = await getAvatarUrl(user.$id);
+				const fetchedAvatarUrl = await getAvatarUrl(u.$id);
 				avatarUrl = fetchedAvatarUrl;
 				console.log('Fetched avatar URL:', avatarUrl);
 			}
 		} catch {
-			user = null;
+			userStore.set(null);
 		}
 	});
 
 	async function logout() {
 		try {
 			await account.deleteSession('current');
-			user = null; // Clear user state
+			userStore.set(null); // Clear user state
 			await goto('/login');
 		} catch (err) {
 			console.error(err);
@@ -77,7 +78,7 @@
 				/>
 			</div>
 		</div>
-		{#if user}
+		{#if $userStore}
 			<!-- User is logged in: Show avatar dropdown -->
 			<div class="dropdown dropdown-end">
 				<div
@@ -85,7 +86,7 @@
 					role="button"
 					class="btn avatar avatar-placeholder btn-circle border border-base-200 btn-ghost hover:bg-primary/10"
 				>
-					<Avatar name={user?.name} src={avatarUrl} size="h-10 w-10" />
+					<Avatar name={$userStore?.name} src={avatarUrl} size="h-10 w-10" />
 				</div>
 				<ul
 					tabIndex="-1"
