@@ -146,7 +146,7 @@
 							{#if avatarUrl}
 								<img src={avatarUrl} alt="Avatar" class="h-24 w-24 rounded-full object-cover" />
 							{:else}
-								<div class="placeholder avatar">
+								<div class="avatar-placeholder avatar">
 									<div class="w-24 rounded-full bg-primary text-primary-content">
 										<span class="text-3xl font-bold">{getInitials(user?.name)}</span>
 									</div>

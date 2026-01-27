@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from 'lucide-svelte';
-	import { account } from '$lib/appwrite';
+	import { account, tablesDB, DATABASE_ID, USERS_TABLE_ID } from '$lib/appwrite';
 	import { ID } from 'appwrite';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -44,23 +44,33 @@
 		}
 
 		try {
-			// Generate a unique userId using Appwrite's ID.unique()
-			const idUser = ID.unique();
-			// Create the user account
-			await account.create({ userId: idUser, email: email, password: password, name: name });
-			// After creating, create a session to log the user in
+			// Create account in Auth
+			const user = await account.create({
+				userId: ID.unique(),
+				email: email,
+				password: password,
+				name: name
+			});
+
+			// Create user entry in users table
+			await tablesDB.createRow({
+				databaseId: DATABASE_ID,
+				tableId: USERS_TABLE_ID,
+				rowId: ID.unique(),
+				data: {
+					userId: user.$id,
+					name: name,
+					email: email,
+					avatarId: null
+				}
+			});
+
+			// Auto-login after registration
 			await account.createEmailPasswordSession({ email: email, password: password });
-			// Redirect to home or dashboard
-			await goto('/');
-		} catch (err) {
+			await goto('/profile');
+		} catch (err: any) {
 			console.error(err);
-			const errorObj = err as any;
-			// Handle specific errors
-			if (errorObj.type === 'user_already_exists') {
-				error = 'Este email já está registrado.';
-			} else {
-				error = errorObj.message || 'Erro ao criar conta.';
-			}
+			error = err.message || 'Erro ao criar conta.';
 		} finally {
 			loading = false;
 		}
@@ -165,7 +175,7 @@
 					<div class="form-control mt-6">
 						<button class="btn rounded-full text-lg btn-primary" disabled={loading}>
 							{#if loading}
-								<Loader2 class="h-5 w-5 animate-spin" />
+								<span class="loading loading-lg loading-dots"></span>
 							{:else}
 								Criar Conta
 								<ArrowRight class="h-5 w-5" />

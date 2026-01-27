@@ -12,11 +12,20 @@
 	let error: string = $state('');
 
 	let filteredProfessors = $derived(
-		professors.filter(
-			(prof) =>
-				prof.name.toLowerCase().includes(query.toLowerCase()) ||
-				prof.course_name.toLowerCase().includes(query.toLowerCase())
-		)
+		professors.filter((prof) => {
+			const searchTerm = query.toLowerCase();
+			const profName = prof.name.toLowerCase();
+			const profCourse = prof.course_name.toLowerCase();
+
+			// Check course name (exact match)
+			if (profCourse.includes(searchTerm)) {
+				return true;
+			}
+
+			// For name search, split query into words and check if all words are present
+			const queryWords = searchTerm.split(' ').filter((word) => word.length > 0);
+			return queryWords.every((word) => profName.includes(word));
+		})
 	);
 
 	onMount(async () => {
@@ -61,9 +70,9 @@
 						<div class="label">
 							<span class="label-text font-bold">Digite o nome do professor ou disciplina</span>
 						</div>
-						<div class="relative">
+						<div class="relative mt-2">
 							<input
-								type="text"
+								type="search"
 								class="input-bordered input input-lg w-full rounded-full bg-base-200 pr-12 focus:bg-base-100 focus:ring-2 focus:ring-primary/20"
 								placeholder="Buscar professores..."
 								bind:value={query}
@@ -76,36 +85,33 @@
 
 					{#if loading}
 						<div class="flex justify-center py-8">
-							<span class="loading loading-lg loading-spinner"></span>
+							<span class="loading loading-xl loading-dots"></span>
 						</div>
 					{:else if error}
-						<div class="mt-4 alert alert-error">
-							<AlertCircle class="h-5 w-5" />
-							<span>{error}</span>
+						<div class="mt-4 rounded-box border border-error/20 bg-error/10 p-6 text-center">
+							<div class="mb-3 text-4xl">⚠️</div>
+							<h3 class="mb-2 text-lg font-semibold text-error">Erro ao carregar dados</h3>
+							<p class="text-base opacity-80">{error}</p>
 						</div>
 					{:else if query && filteredProfessors.length > 0}
-						<div class="relative mt-2">
-							<div
-								class="absolute z-10 max-h-80 w-full overflow-y-auto rounded-box border border-base-300 bg-base-100 shadow-xl"
-							>
-								<ul class="menu-compact menu p-2">
+						<div class="dropdown-open dropdown mt-2 w-full">
+							<div class="dropdown-content z-10 max-h-80 w-full overflow-y-auto">
+								<ul
+									class="menu-compact menu w-full rounded-box border border-base-300 bg-base-100 shadow-xl"
+								>
 									{#each filteredProfessors as prof}
-										<li>
-											<a
-												href="/"
-												onclick={(e) => {
-													e.preventDefault();
-													selectProfessor(prof.slug);
-												}}
+										<li class="w-full">
+											<button
+												onclick={() => selectProfessor(prof.slug)}
 												onkeydown={(e) => {
 													if (e.key === 'Enter' || e.key === ' ') {
 														e.preventDefault();
 														selectProfessor(prof.slug);
 													}
 												}}
-												class="cursor-pointer rounded-lg hover:bg-primary/10"
+												class="w-full text-left hover:bg-primary/10 focus:bg-primary/10"
 											>
-												<div class="flex items-center gap-3 py-2">
+												<div class="flex items-center gap-3 px-3 py-2">
 													{#if prof.profile_picture_url}
 														<img
 															src={prof.profile_picture_url}
@@ -113,20 +119,22 @@
 															class="h-10 w-10 rounded-full object-cover"
 														/>
 													{:else}
-														<div
-															class="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-bold text-primary-content"
-														>
-															{prof.name.charAt(0).toUpperCase()}
+														<div class="avatar avatar-placeholder">
+															<div class="h-10 w-10 rounded-full bg-primary text-primary-content">
+																<span class="text-lg font-bold"
+																	>{prof.name.charAt(0).toUpperCase()}</span
+																>
+															</div>
 														</div>
 													{/if}
-													<div>
-														<div class="font-bold">{prof.name}</div>
-														<div class="text-sm opacity-70">
-															{prof.course_name} - {prof.university_slug}
+													<div class="min-w-0 flex-1">
+														<div class="truncate font-semibold">{prof.name}</div>
+														<div class="truncate text-sm opacity-70">
+															{prof.course_name} • {prof.university_slug}
 														</div>
 													</div>
 												</div>
-											</a>
+											</button>
 										</li>
 									{/each}
 								</ul>
@@ -134,9 +142,14 @@
 						</div>
 					{:else if query && filteredProfessors.length === 0}
 						<div
-							class="mt-4 rounded-box border border-base-300 bg-base-100 p-4 text-center text-gray-500"
+							class="mt-4 rounded-box border-2 border-dashed border-base-300 bg-base-200/50 p-8 text-center"
 						>
-							Nenhum professor encontrado para "{query}".
+							<div class="mb-4 text-6xl opacity-50">🔍</div>
+							<h3 class="mb-2 text-lg font-semibold">Nenhum professor encontrado</h3>
+							<p class="text-base opacity-70">
+								Não encontramos nenhum professor com "{query}".<br />
+								Tente usar termos diferentes ou verifique a ortografia.
+							</p>
 						</div>
 					{/if}
 				</div>

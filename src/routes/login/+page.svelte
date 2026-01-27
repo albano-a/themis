@@ -121,7 +121,7 @@
 					<div class="form-control mt-6">
 						<button class="btn rounded-full text-lg btn-primary" disabled={loading}>
 							{#if loading}
-								<Loader2 class="h-5 w-5 animate-spin" />
+								<span class="loading loading-dots loading-lg"></span>
 							{:else}
 								Entrar
 								<ArrowRight class="h-5 w-5" />

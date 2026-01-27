@@ -1,17 +1,23 @@
 <script lang="ts">
 	// Function that will get the user name and set to the placeholder
 	import { Search } from 'lucide-svelte';
-	import { account } from '$lib/appwrite';
+	import { account, storage, BUCKET_ID } from '$lib/appwrite';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	/** @type {import('appwrite').Models.User | null} */
 	let user: import('appwrite').Models.User | null = $state(null);
 	let searchQuery: string = $state('');
+	let avatarUrl: string = $state('');
 
 	onMount(async () => {
 		try {
 			user = await account.get();
+			// Get user preferences to check for avatar
+			const prefs = await account.getPrefs();
+			if (prefs.avatarId) {
+				avatarUrl = storage.getFileView(BUCKET_ID, prefs.avatarId);
+			}
 		} catch {
 			user = null;
 		}
@@ -64,23 +70,20 @@
 			Classefy
 		</a>
 	</div>
-	<div class="flex gap-4">
+	<div class="flex items-center gap-4">
 		<div class="hidden max-w-md flex-1 md:flex">
 			<div class="relative w-full">
 				<input
 					type="text"
-					class="input-bordered input input-sm w-full rounded-full bg-base-200 pr-10 focus:bg-base-100 focus:ring-2 focus:ring-primary/20"
+					class="input-bordered input input-sm h-10 w-full rounded-full bg-base-200 pr-12 focus:bg-base-100 focus:ring-2 focus:ring-primary/20"
 					placeholder="Buscar professores..."
 					bind:value={searchQuery}
 					onkeydown={handleKeydown}
 				/>
-				<button
-					class="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 transform text-gray-400 hover:text-primary"
+				<Search
+					class="absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 transform cursor-pointer text-gray-400 hover:text-primary"
 					onclick={handleSearch}
-					aria-label="Buscar"
-				>
-					<Search class="h-4 w-4" />
-				</button>
+				/>
 			</div>
 		</div>
 		{#if user}
@@ -91,9 +94,15 @@
 					role="button"
 					class="placeholder btn avatar btn-circle border border-base-200 btn-ghost hover:bg-primary/10"
 				>
-					<div class="w-10 rounded-full bg-primary/10 text-primary">
-						<span class="text-xl font-bold">{getInitials(user.name)}</span>
-					</div>
+					{#if avatarUrl}
+						<div class="w-10 rounded-full">
+							<img src={avatarUrl} alt="Avatar" class="h-full w-full rounded-full object-cover" />
+						</div>
+					{:else}
+						<div class="w-10 rounded-full bg-primary/10 text-primary">
+							<span class="text-xl font-bold">{getInitials(user.name)}</span>
+						</div>
+					{/if}
 				</div>
 				<ul
 					tabIndex="-1"
