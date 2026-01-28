@@ -25,6 +25,7 @@
 	<meta property="og:image" content="https://classefy.vercel.app/screenshot.png" />
 	<meta property="og:url" content="https://classefy.vercel.app" />
 	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="Classefy" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Classefy - Avaliações de Professores" />
 	<meta
