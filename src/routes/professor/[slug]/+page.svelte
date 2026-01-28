@@ -26,9 +26,19 @@
 	const maxStars = 10;
 
 	// SEO
-	let pageTitle = $derived(professor ? `${professor.name} - Avaliação | Classefy` : 'Classefy - Avaliações de Professores');
-	let pageDescription = $derived(professor ? `Avaliações de ${professor.name}, professor de ${professor.course_name} na ${professor.university_slug}. Veja o que os alunos dizem.` : 'Descubra avaliações reais de professores. Saiba quem ensina bem e evite surpresas nas matérias.');
-	let ogUrl = $derived(professor ? `https://classefy.vercel.app/professor/${professor.slug}` : 'https://classefy.vercel.app');
+	let pageTitle = $derived(
+		professor ? `${professor.name} - Avaliação | Classefy` : 'Classefy - Avaliações de Professores'
+	);
+	let pageDescription = $derived(
+		professor
+			? `Avaliações de ${professor.name}, professor de ${professor.course_name} na ${professor.university_slug}. Veja o que os alunos dizem.`
+			: 'Descubra avaliações reais de professores. Saiba quem ensina bem e evite surpresas nas matérias.'
+	);
+	let ogUrl = $derived(
+		professor
+			? `https://classefy.vercel.app/professor/${professor.slug}`
+			: 'https://classefy.vercel.app'
+	);
 
 	// Review modal state
 	let showReviewModal = $state(false);
