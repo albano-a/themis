@@ -25,6 +25,11 @@
 	let currentUserRowId = $state<string | null>(null);
 	const maxStars = 10;
 
+	// SEO
+	let pageTitle = $derived(professor ? `${professor.name} - Avaliação | Classefy` : 'Classefy - Avaliações de Professores');
+	let pageDescription = $derived(professor ? `Avaliações de ${professor.name}, professor de ${professor.course_name} na ${professor.university_slug}. Veja o que os alunos dizem.` : 'Descubra avaliações reais de professores. Saiba quem ensina bem e evite surpresas nas matérias.');
+	let ogUrl = $derived(professor ? `https://classefy.vercel.app/professor/${professor.slug}` : 'https://classefy.vercel.app');
+
 	// Review modal state
 	let showReviewModal = $state(false);
 	let reviewRating = $state(1);
@@ -182,6 +187,20 @@
 		return Array.from({ length: 5 }, (_, i) => i < rating);
 	}
 </script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+	<meta name="description" content={pageDescription} />
+	<meta property="og:title" content={pageTitle} />
+	<meta property="og:description" content={pageDescription} />
+	<meta property="og:image" content="https://classefy.vercel.app/screenshot.png" />
+	<meta property="og:url" content={ogUrl} />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={pageTitle} />
+	<meta name="twitter:description" content={pageDescription} />
+	<meta name="twitter:image" content="https://classefy.vercel.app/screenshot.png" />
+</svelte:head>
 
 <div class="min-h-screen font-sans">
 	<div class="container mx-auto px-4 py-12">
